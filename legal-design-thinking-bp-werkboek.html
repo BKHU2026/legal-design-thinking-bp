@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Legal Design Thinking – BP Werkboek</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    h1, h2 { text-align: center; }
+    .step { display: none; }
+    .step.active { display: block; }
+    label { font-weight: bold; display: block; margin-top: 12px; }
+    textarea {
+      width: 100%; min-height: 60px; margin-top: 4px;
+      padding: 8px; border-radius: 6px; border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .navigation { display: flex; justify-content: space-between; margin-top: 20px; }
+    button {
+      padding: 10px 16px; border: none; border-radius: 8px;
+      cursor: pointer; font-size: 14px;
+    }
+    .primary { background: #4f46e5; color: white; }
+    .secondary { background: #e5e7eb; }
+    .download {
+      margin-top: 30px; width: 100%; background: #16a34a;
+      color: white; font-size: 16px;
+    }
+    .hint { font-style: italic; color: #555; margin-top: 6px; }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <h1>Legal Design Thinking – BP Werkboek</h1>
+  <p style="text-align:center">Vul alle stappen in en download je werk als <strong>Word-document</strong>.</p>
+
+  <div class="step active"><h2>Stap 1A – Praktijkprobleem</h2>
+    <label>Wat is het praktijkprobleem?</label><textarea data-question="Wat is het praktijkprobleem?"></textarea>
+    <label>Wie heeft het probleem?</label><textarea data-question="Wie heeft het probleem?"></textarea>
+    <label>Wanneer is het probleem ontstaan?</label><textarea data-question="Wanneer is het probleem ontstaan?"></textarea>
+    <label>Waarom is dit een probleem?</label><textarea data-question="Waarom is dit een probleem?"></textarea>
+    <label>Waar doet het probleem zich voor?</label><textarea data-question="Waar doet het probleem zich voor?"></textarea>
+    <label>Wat was de aanleiding?</label><textarea data-question="Wat was de aanleiding van het probleem?"></textarea>
+  </div>
+
+  <div class="step"><h2>Stap 1B – Doelgroepen</h2>
+    <label>Klant 1 – Beslisser</label><textarea data-question="Klant 1 – Beslisser"></textarea>
+    <label>Klant 2 – Gebruiker</label><textarea data-question="Klant 2 – Gebruiker"></textarea>
+    <label>Klant 3 – Betaler</label><textarea data-question="Klant 3 – Betaler"></textarea>
+  </div>
+
+  <div class="step"><h2>Stap 2 – Ontwerpvraag (HKW)</h2>
+    <label>Waar is behoefte aan?</label><textarea data-question="Waar is behoefte aan?"></textarea>
+    <label>Waarom lukt dat nu niet?</label><textarea data-question="Waarom lukt dat nu niet?"></textarea>
+    <label>HKW-vraag</label><textarea data-question="HKW-vraag"></textarea>
+    <p class="hint">Tip: kort, positief en ambitieus.</p>
+  </div>
+
+  <div class="step"><h2>Stap 3 – Ideeën</h2>
+    <label>Idee 1</label><textarea data-question="Idee 1"></textarea>
+    <label>Idee 2</label><textarea data-question="Idee 2"></textarea>
+    <label>Idee 3</label><textarea data-question="Idee 3"></textarea>
+    <label>Idee 4</label><textarea data-question="Idee 4"></textarea>
+    <label>Idee 5</label><textarea data-question="Idee 5"></textarea>
+  </div>
+
+  <div class="step"><h2>Stap 4 – Prototype</h2>
+    <label>Gekozen idee</label><textarea data-question="Gekozen prototype"></textarea>
+    <label>Waarom dit prototype?</label><textarea data-question="Waarom dit prototype?"></textarea>
+    <label>Voordelen en nadelen voor de doelgroep</label><textarea data-question="Voordelen en nadelen voor de doelgroep"></textarea>
+  </div>
+
+  <div class="navigation">
+    <button class="secondary" onclick="prevStep()">Vorige</button>
+    <button class="primary" onclick="nextStep()">Volgende</button>
+  </div>
+
+  <button class="download" onclick="downloadWord()">📄 Download Word-document</button>
+</div>
+
+<script>
+  let currentStep = 0;
+  const steps = document.querySelectorAll('.step');
+
+  function showStep(index) {
+    steps.forEach(s => s.classList.remove('active'));
+    steps[index].classList.add('active');
+  }
+  function nextStep() { if (currentStep < steps.length - 1) { currentStep++; showStep(currentStep); } }
+  function prevStep() { if (currentStep > 0) { currentStep--; showStep(currentStep); } }
+
+  async function downloadWord() {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+    const paragraphs = [ new Paragraph({ text: 'Legal Design Thinking – Beroepsproduct', heading: HeadingLevel.TITLE }) ];
+    document.querySelectorAll('textarea').forEach(area => {
+      paragraphs.push(new Paragraph({ children: [ new TextRun({ text: area.dataset.question + ': ', bold: true }), new TextRun(area.value || '—') ] }));
+    });
+    const doc = new Document({ sections: [{ children: paragraphs }] });
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, 'Legal_Design_Thinking_BP.docx');
+  }
+</script>
+</body>
+</html>
